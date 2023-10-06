@@ -125,7 +125,7 @@ def download_ts_file(ts_url: str, store_dir: str, headers):
 def download(m3u8_link, m3u8_content, m3u8_headers, decrypt_key, merged_mp4):
 
     # Reading the m3u8 file
-    m3u8_http_base = m3u8_link.rstrip(m3u8_link.split("/")[-1]) + ".ts"
+    m3u8_http_base = m3u8_link.rstrip(m3u8_link.split("/")[-1])
     m3u8 = m3u8_content.split('\n')
     ts_url_list = []
     ts_names = []
