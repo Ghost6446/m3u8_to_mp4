@@ -16,7 +16,7 @@ def main():
     r = requests.get(url, headers=headers)
 
     if r.ok:
-        download(url, r.content, headers, key, "test.mp4")
+        download(url, r.text, headers, key, "test.mp4")
     else:
         console.log("[red]Insert valid headers or url")
 
