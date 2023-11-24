@@ -1,13 +1,13 @@
 # 4.08.2023 -> 14.09.2023 -> 17.09.2023
 
 # Import
-import re, os, glob, time, requests, shutil, ffmpeg, subprocess
+import re, os, glob, time, requests, shutil, ffmpeg, subprocess, sys
 from functools import partial
 from multiprocessing.dummy import Pool
 from tqdm.rich import tqdm
 
 # Class import
-from util.util import console
+from m3u8_to_mp4.util.util import console
 
 # Disable warning
 import warnings
@@ -124,6 +124,12 @@ def download_ts_file(ts_url: str, store_dir: str, headers):
 
 def download(m3u8_link, m3u8_content, m3u8_headers, decrypt_key, merged_mp4):
 
+    # Temp folder for download all ts file and out folder for convert ts with key
+    temp_folder = "temp_ts__" + str(merged_mp4).replace(".mp4", "")
+    out_folder = "ou_ts__"+ str(merged_mp4).replace(".mp4", "")
+    os.makedirs(temp_folder, exist_ok=True)
+    os.makedirs(out_folder, exist_ok=True)
+
     # Reading the m3u8 file
     m3u8_http_base = m3u8_link.rstrip(m3u8_link.split("/")[-1])
     m3u8 = m3u8_content.split('\n')
@@ -148,37 +154,41 @@ def download(m3u8_link, m3u8_content, m3u8_headers, decrypt_key, merged_mp4):
             ts_url_list.append(ts_url)
     console.log(f"[blue]Find [white]=> [red]{len(ts_url_list)}[blue] ts file to download")
 
+    if len(ts_url_list) == 0:
+        console.log("[red]No file to download")
+        shutil.rmtree(out_folder, ignore_errors=True)
+        shutil.rmtree(temp_folder, ignore_errors=True)
+        sys.exit(0)
+
+
     if decrypt_key != "":
         console.log(f"[blue]Use decrypting")
-
         video_decoder = Video_Decoder(x_key=x_key_dict, uri=decrypt_key)
-        os.makedirs("ou_ts", exist_ok=True)
 
     #  Using multithreading to download all ts file
-    os.makedirs("temp_ts", exist_ok=True)
     pool = Pool(15)
-    gen = pool.imap(partial(download_ts_file, store_dir="temp_ts", headers=m3u8_headers), ts_url_list)
+    gen = pool.imap(partial(download_ts_file, store_dir=temp_folder, headers=m3u8_headers), ts_url_list)
     for _ in tqdm(gen, total=len(ts_url_list), unit="bytes", unit_scale=True, unit_divisor=1024, desc="[yellow]Download"):
         pass
     pool.close()
     pool.join()
 
     if decrypt_key != "":
-        for ts_fname in tqdm(glob.glob("temp_ts\*.ts"), desc="[yellow]Decoding"):
+        for ts_fname in tqdm(glob.glob(temp_folder + "\\*.ts"), desc="[yellow]Decoding"):
             video_decoder(ts_fname)
 
         # Start to merge all *.ts files
-        save_in_part("ou_ts", merged_mp4)
+        save_in_part(out_folder, merged_mp4)
     else:
-        save_in_part("temp_ts", merged_mp4)
+        save_in_part(temp_folder, merged_mp4)
 
 
     # Clean temp file
     os.chdir("..")
     console.log("[green]Clean")
 
-    if decrypt_key != "": shutil.move("ou_ts\\"+merged_mp4 , ".")
-    else: shutil.move("temp_ts\\"+merged_mp4 , ".")
+    if decrypt_key != "": shutil.move(out_folder + "\\" + merged_mp4 , ".")
+    else: shutil.move(temp_folder + "\\" + merged_mp4 , ".")
 
-    shutil.rmtree("ou_ts", ignore_errors=True)
-    shutil.rmtree("temp_ts", ignore_errors=True)
+    shutil.rmtree(out_folder, ignore_errors=True)
+    shutil.rmtree(temp_folder, ignore_errors=True)
