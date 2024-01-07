@@ -1,24 +1,11 @@
-# 18.09.2023
+# 7.01.24
 
 # Import
-from util.m3u8 import download
-from util.util import console
-import requests
+from Src.m3u8 import dw_m3u8
 
 # Variable
 url = ""
-headers = ""
-key = ""
 
+# Run
+dw_m3u8(url=url, audio_url=None, key=None)
 
-def main():
-
-    r = requests.get(url, headers=headers)
-
-    if r.ok:
-        download(url, r.text, headers, key, "test.mp4")
-    else:
-        console.log("[red]Insert valid headers or url")
-
-if __name__ == "__main__":
-    main()

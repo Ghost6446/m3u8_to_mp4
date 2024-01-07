@@ -1,33 +1,26 @@
+<p align="center">
+	<img src="Src/assets/min_logo.png" style="max-width: 55%;" alt="video working" />
+</p>
 
-# M3U8 To MP4
+## M3U8 Downloader
+Script to download all ts file from m3u8 and covert to mp4
 
-Simple script to convert m3u8 req to mp4
+## Requirement
+* python [3.9](https://www.python.org/downloads/release/python-390/)
+* ffmpeg [win](https://www.gyan.dev/ffmpeg/builds/)
 
-
-
-## Installation
-
-After install requirement
-
+## Installation library
 ```bash
-    install "openssl" https://slproweb.com/products/Win32OpenSSL.html and add to path
-    pip install -r requirements.txt
+pip install -r requirements.txt
 ```
-    
-## Run Locally
 
-Clone the project
+## Run
 ```bash
-    python run.py
+python run.py
 ```
 
-
-## Usage/Examples
-
-```python
-    change headers, url, and insert key_decrypt if necessary
-```
-
+## Features
+- Add option to insert m3u8 audio and merge with m3u8 video
 
 ## Authors
 

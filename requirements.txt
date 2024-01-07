@@ -1,7 +1,7 @@
-bs4
 requests
-lxml
 tqdm
 rich
-multiprocess
 ffmpeg-python
+random-user-agent
+cryptography
+moviepy
